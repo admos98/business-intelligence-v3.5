@@ -99,7 +99,7 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
       gistId: import.meta.env.VITE_GIST_ID,
 
       // Auth Slice
-      users: [{ id: 'user-1', username: 'mehrnoosh', passwordHash: 'cafe' }],
+      users: [{ id: 'user-1', username: 'moslem', passwordHash: 'Pedro3313' },{ id: 'user-2', username: 'hosseinmallah', passwordHash: '8044cafe' }],
       currentUser: null,
       login: (username, password) => {
         const user = get().users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.passwordHash === password);
