@@ -12,7 +12,7 @@ interface FullShoppingState extends AuthSlice, SettingsSlice, ShoppingState {
   vendors: Vendor[];
   categoryVendorMap: Record<string, string>; // categoryName -> vendorId
   itemInfoMap: Record<string, { unit: Unit, category: string }>;
-  
+
   hydrateFromCloud: () => Promise<void>;
 
   // List Actions
@@ -21,7 +21,7 @@ interface FullShoppingState extends AuthSlice, SettingsSlice, ShoppingState {
   deleteList: (listId: string) => void;
   updateItem: (listId: string, itemId: string, updates: Partial<ShoppingItem>) => void;
   addItemFromSuggestion: (suggestion: SmartSuggestion) => boolean;
-  
+
   addCustomData: (item: ShoppingItem) => void;
 
   // OCR Action
@@ -79,7 +79,7 @@ const debouncedSaveData = (state: FullShoppingState) => {
         if (!githubToken || !gistId || !currentUser || isHydrating) {
             return;
         }
-        
+
         const dataToSave = {
             lists: state.lists,
             customCategories: state.customCategories,
@@ -95,11 +95,11 @@ const debouncedSaveData = (state: FullShoppingState) => {
 export const useShoppingStore = create<FullShoppingState>((set, get) => ({
       isHydrating: true,
       ...emptyState,
-      githubToken: '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',
-      gistId: '57d54628c62b60b9a410ae11a280d8da',
+      githubToken: import.meta.env.VITE_GH_TOKEN,
+      gistId: import.meta.env.VITE_GIST_ID,
 
       // Auth Slice
-      users: [{ id: 'user-1', username: 'mehrnoosh', passwordHash: 'cafe' }], 
+      users: [{ id: 'user-1', username: 'mehrnoosh', passwordHash: 'cafe' }],
       currentUser: null,
       login: (username, password) => {
         const user = get().users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.passwordHash === password);
@@ -141,7 +141,7 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
 
       createList: (date) => {
         const listId = toJalaliDateString(date.toISOString());
-        
+
         const existingList = get().lists.find(l => l.id === listId);
         if (existingList) {
           return existingList.id;
@@ -170,7 +170,7 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
         set((state) => ({ lists: state.lists.filter((list) => list.id !== listId) }));
         debouncedSaveData(get());
       },
-      
+
       updateItem: (listId, itemId, updates) => {
         set(state => ({
             lists: state.lists.map(list => {
@@ -208,7 +208,7 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
             status: ItemStatus.Pending,
             estimatedPrice: latestInfo.pricePerUnit ? latestInfo.pricePerUnit * (latestInfo.lastAmount || 1) : undefined
         };
-        
+
         get().updateList(listId, { ...list, items: [...list.items, newItem] });
         return true;
       },
@@ -216,7 +216,7 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
       addOcrPurchase: (ocrResult, paymentMethod, paymentStatus, vendorName) => {
         const { date, items: ocrItems } = ocrResult;
         const vendorId = get().findOrCreateVendor(vendorName);
-        
+
         const parsedDate = parseJalaliDate(date);
         if (!parsedDate) {
             console.error("Invalid OCR date, cannot create list:", date);
@@ -225,7 +225,7 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
 
         const targetListId = get().createList(parsedDate);
         const targetList = get().lists.find(l => l.id === targetListId)!;
-        
+
         const newShoppingItems: ShoppingItem[] = ocrItems.map((item, index) => ({
             id: `item-${Date.now()}-${index}`,
             name: item.name,
@@ -239,14 +239,14 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
             paymentMethod: paymentMethod,
             vendorId: vendorId,
         }));
-        
+
         newShoppingItems.forEach(item => {
             get().addCustomData(item);
             if(item.category && vendorId) {
                 get().updateCategoryVendorMap(item.category, vendorId);
             }
         });
-        
+
         const updatedList = { ...targetList, items: [...targetList.items, ...newShoppingItems] };
         get().updateList(targetListId, updatedList);
 
@@ -290,7 +290,7 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
         }
         return get().addVendor({ name: trimmedName });
       },
-      
+
       updateCategoryVendorMap: (category, vendorId) => {
         set(state => ({
             categoryVendorMap: {
@@ -300,7 +300,7 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
         }));
         debouncedSaveData(get());
       },
-      
+
       updateMasterItem: (originalName, originalUnit, updates) => {
           set(state => {
               const newLists = state.lists.map(list => ({
@@ -327,7 +327,7 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
       addCustomData: (item) => {
         const { category, name, unit } = item;
         const allCats = get().allCategories();
-        
+
         let stateChanged = false;
         const stateUpdates: Partial<FullShoppingState> = {};
 
@@ -335,7 +335,7 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
           stateUpdates.customCategories = [...get().customCategories, category];
           stateChanged = true;
         }
-        
+
         if (name && unit && category) {
             stateUpdates.itemInfoMap = { ...get().itemInfoMap, [name.trim()]: { unit, category } };
             stateChanged = true;
@@ -346,13 +346,13 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
             debouncedSaveData(get());
         }
       },
-      
+
       allCategories: () => {
          const { customCategories } = get();
          const combined = [...DEFAULT_CATEGORIES, ...customCategories];
          return [...new Set(combined)];
       },
-      
+
       getKnownItemNames: () => {
         const itemNames = new Set<string>();
         get().lists.forEach(list => {
@@ -361,7 +361,7 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
         Object.keys(get().itemInfoMap).forEach(name => itemNames.add(name));
         return Array.from(itemNames).sort((a,b) => a.localeCompare(b, 'fa'));
       },
-      
+
       // FIX: Complete the implementation of getAllKnownItems to correctly calculate stats and return MasterItem[]
       getAllKnownItems: () => {
         const allPurchasedItems = get().lists
@@ -390,13 +390,13 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
             currentStats.totalQuantity += item.purchasedAmount || 0;
             currentStats.totalSpend += item.paidPrice || 0;
             currentStats.purchaseCount++;
-            
+
             if (item.purchaseDate >= currentStats.latestPurchaseDate) {
                 currentStats.latestPurchaseDate = item.purchaseDate;
                 currentStats.lastPricePerUnit = (item.paidPrice || 0) / (item.purchasedAmount || 1);
                 currentStats.category = item.category;
             }
-            
+
             itemStats.set(key, currentStats);
         });
 
@@ -445,7 +445,7 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
             }
             itemHistory.get(key)!.dates.push(item.purchaseDate);
         });
-        
+
         const suggestions: SmartSuggestion[] = [];
         const today = new Date();
         today.setHours(0,0,0,0);
@@ -530,18 +530,18 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
             .filter(i => i.status === ItemStatus.Bought && i.paidPrice);
 
         if (allPurchases.length < 5) return null;
-        
+
         const sorted = allPurchases.sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
         const firstDay = new Date(sorted[0].date);
         const lastDay = new Date(sorted[sorted.length - 1].date);
         const oneDay = 24 * 60 * 60 * 1000;
         const totalDays = Math.round(Math.abs((lastDay.getTime() - firstDay.getTime()) / oneDay)) + 1;
-        
+
         if (totalDays < 30) return null;
 
         const totalSpend = sorted.reduce((sum, item) => sum + item.paidPrice!, 0);
         const daily = totalSpend / totalDays;
-        
+
         return {
             daily,
             monthly: daily * 30,
@@ -565,14 +565,14 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
         const allPurchases = get().lists
             .flatMap(list => {
                 const listDate = new Date(list.createdAt);
-                return listDate >= startDate && listDate <= endDate 
-                    ? list.items.map(item => ({ ...item, purchaseDate: listDate })) 
+                return listDate >= startDate && listDate <= endDate
+                    ? list.items.map(item => ({ ...item, purchaseDate: listDate }))
                     : [];
             })
             .filter(item => item.status === ItemStatus.Bought && item.paidPrice);
 
         if (allPurchases.length === 0) return null;
-        
+
         const kpis = {
             totalSpend: allPurchases.reduce((sum, item) => sum + item.paidPrice!, 0),
             totalItems: new Set(allPurchases.map(item => item.name)).size,
@@ -583,15 +583,15 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
 
         const totalDays = Math.max(1, (endDate.getTime() - startDate.getTime()) / (1000 * 3600 * 24));
         kpis.avgDailySpend = kpis.totalSpend / totalDays;
-        
+
         const categorySpend = allPurchases.reduce((acc, item) => {
             acc[item.category] = (acc[item.category] || 0) + item.paidPrice!;
             return acc;
         }, {} as Record<string, number>);
-        
+
         const topCat = Object.entries(categorySpend).sort((a,b) => b[1] - a[1])[0];
         if (topCat) kpis.topCategory = { name: topCat[0], amount: topCat[1] };
-        
+
         const vendorMap = new Map(get().vendors.map(v => [v.id, v.name]));
         const vendorSpend = allPurchases.reduce((acc, item) => {
             if (item.vendorId) {
@@ -603,7 +603,7 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
 
         const topVen = Object.entries(vendorSpend).sort((a,b) => b[1] - a[1])[0];
         if (topVen) kpis.topVendor = { name: topVen[0], amount: topVen[1] };
-        
+
         // Chart Data
         const spendingOverTime: { labels: string[]; data: number[] } = { labels: [], data: [] };
         const timeMap = new Map<string, number>();
@@ -617,7 +617,7 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
         });
         spendingOverTime.labels = Array.from(timeMap.keys());
         spendingOverTime.data = Array.from(timeMap.values());
-        
+
         const spendingByCategory: { labels: string[]; data: number[] } = { labels: [], data: [] };
         const sortedCategories = Object.entries(categorySpend).sort((a,b) => b[1] - a[1]);
         spendingByCategory.labels = sortedCategories.map(c => c[0]);
