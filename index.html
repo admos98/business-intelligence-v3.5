@@ -8,106 +8,27 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      /* Base styles */
-      :root {
-        --font-sans: 'Vazirmatn', 'sans-serif';
-      }
-      /* Light Theme */
-      .theme-light {
-        --color-background: #F8F9FA; /* Very light grey */
-        --color-surface: #FFFFFF;    /* White */
-        --color-primary: #212529;   /* Dark Grey for text */
-        --color-secondary: #6C757D;  /* Muted Grey for text */
-        --color-accent: #0D6EFD;     /* Bootstrap Blue */
-        --color-accent-soft: #0D6EFD26;
-        --color-accent-text: #FFFFFF;
-        --color-danger: #DC3545;
-        --color-danger-soft: #F8D7DA;
-        --color-success: #198754;
-        --color-success-soft: #D1E7DD;
-        --color-border: #E9ECEF; /* Lighter border */
-        --logo-bg: #212529;
-        --logo-fg: #FFFFFF;
-        --color-chart-1: #0D6EFD;
-        --color-chart-2: #6C757D;
-        --color-chart-3: #198754;
-        --color-chart-4: #FFC107;
-        --color-chart-5: #0DCAF0;
-      }
-      /* Dark Theme */
-      .theme-dark {
-        --color-background: #121212; /* Almost black */
-        --color-surface: #1E1E1E;    /* Dark Grey */
-        --color-primary: #E9ECEF;    /* Light Grey for text */
-        --color-secondary: #ADB5BD;  /* Muted light grey */
-        --color-accent: #0DCAF0;     /* Cyan */
-        --color-accent-soft: #0DCAF026;
-        --color-accent-text: #121212;
-        --color-danger: #F28B82;     /* Lighter red */
-        --color-danger-soft: rgba(242, 139, 130, 0.15);
-        --color-success: #81C995;    /* Lighter green */
-        --color-success-soft: rgba(129, 201, 149, 0.15);
-        --color-border: #343A40;     /* Darker border */
-        --logo-bg: #E9ECEF;
-        --logo-fg: #121212;
-        --color-chart-1: #0DCAF0;
-        --color-chart-2: #ADB5BD;
-        --color-chart-3: #81C995;
-        --color-chart-4: #FDD663;
-        --color-chart-5: #A370F7;
-      }
-    </style>
     <script>
-      // Theme loader script to prevent FOUC
+      // Theme loader script to prevent FOUC (Flash of Unstyled Content)
       (function() {
-        const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        const theme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
         document.documentElement.className = `theme-${theme}`;
       })();
     </script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Vazirmatn', 'sans-serif'],
-            },
-            colors: {
-              background: 'var(--color-background)',
-              surface: 'var(--color-surface)',
-              primary: 'var(--color-primary)',
-              secondary: 'var(--color-secondary)',
-              accent: 'var(--color-accent)',
-              'accent-text': 'var(--color-accent-text)',
-              danger: 'var(--color-danger)',
-              'danger-soft': 'var(--color-danger-soft)',
-              success: 'var(--color-success)',
-              'success-soft': 'var(--color-success-soft)',
-              border: 'var(--color-border)',
-            },
-            boxShadow: {
-                'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-                'card': '0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.07)',
-                'glow': '0 0 15px -3px var(--color-accent)',
-            }
-          }
-        }
-      }
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/index.css">
   <script type="importmap">
 {
   "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "zustand": "https://aistudiocdn.com/zustand@^4.5.4",
-    "zustand/middleware": "https://aistudiocdn.com/zustand@^4.5.4/middleware.js",
-    "zustand/": "https://aistudiocdn.com/zustand@^5.0.8/"
+    "vite": "https://aistudiocdn.com/vite@^7.2.2",
+    "zustand": "https://aistudiocdn.com/zustand@^5.0.8",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.0",
+    "@vercel/node": "https://aistudiocdn.com/@vercel/node@^5.5.5",
+    "html2canvas": "https://aistudiocdn.com/html2canvas@^1.4.1",
+    "jspdf": "https://aistudiocdn.com/jspdf@^3.0.3",
+    "chart.js": "https://aistudiocdn.com/chart.js@^4.5.1"
   }
 }
 </script>

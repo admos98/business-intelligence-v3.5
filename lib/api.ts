@@ -1,5 +1,3 @@
-// This is the complete and correct code for: /lib/api.ts
-
 interface StoredData {
     lists: any[];
     customCategories: string[];
@@ -8,69 +6,73 @@ interface StoredData {
     itemInfoMap: Record<string, any>;
 }
 
-/**
- * Fetches the entire Gist object from our own secure API endpoint.
- * This function no longer knows about tokens or IDs.
- */
+const handleApiError = async (response: Response, context: string): Promise<Error> => {
+    const errorBody = await response.text();
+    if (errorBody.trim().startsWith('<!DOCTYPE')) {
+        const message = `Backend endpoint not found during ${context}. This is expected if you are not running a Vercel-like development server (e.g., using 'vercel dev'). The application cannot connect to the backend.`;
+        console.error(message);
+        return new Error(message);
+    }
+    return new Error(`Failed during ${context}: ${response.status} ${response.statusText} - ${errorBody}`);
+}
+
 export const fetchData = async (): Promise<StoredData | null> => {
     try {
-        // This calls the secure middleman you created in /api/gist.ts
-        const response = await fetch('/api/gist');
+        const response = await fetch('/api/data', {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' },
+        });
+
+        if (response.status === 404 || response.status === 204) {
+             console.log("No existing data found on backend.");
+             return null;
+        }
 
         if (!response.ok) {
-            const errorBody = await response.text();
-            throw new Error(`Failed to fetch data from proxy: ${errorBody}`);
+            throw await handleApiError(response, 'fetchData');
+        }
+
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw await handleApiError(response, 'fetchData');
         }
 
         const data = await response.json();
 
-        // This logic parses the data returned from our secure API
-        if (data.files && data.files['mehrnoosh-cafe-data.json']) {
-            const fileContent = data.files['mehrnoosh-cafe-data.json'].content;
-            if (fileContent) {
-                return JSON.parse(fileContent);
+        if (data && data.content) {
+            try {
+                // The content from the backend should already be a JSON string
+                return JSON.parse(data.content);
+            } catch (e) {
+                console.error("Failed to parse JSON content from backend.", e);
+                return null;
             }
         }
 
-        console.warn('Gist was fetched, but contained no valid data file.');
-        return null; // Gist is empty or malformed
+        return null;
 
     } catch (error) {
-        console.error("Error in secure fetchData:", error);
-        throw error;
+        console.error("Error in fetchData:", error);
+        // Do not re-throw; let the app load in an empty state. The error is already logged.
+        return null;
     }
 };
 
-/**
- * Sends data to be saved to our own secure API endpoint.
- * This function no longer knows about tokens or IDs.
- */
+
 export const saveData = async (data: StoredData): Promise<void> => {
     try {
-        const FILENAME = 'mehrnoosh-cafe-data.json';
-        const payload = {
-            files: {
-                [FILENAME]: {
-                    content: JSON.stringify(data, null, 2),
-                },
-            },
-        };
-
-        // This calls the secure middleman you created in /api/gist.ts
-        const response = await fetch('/api/gist', {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload),
+        const response = await fetch(`/api/data`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: JSON.stringify(data, null, 2) }),
         });
 
         if (!response.ok) {
-            const errorBody = await response.text();
-            throw new Error(`Failed to save data via proxy: ${errorBody}`);
+            throw await handleApiError(response, 'saveData');
         }
     } catch (error) {
-        console.error("Error in secure saveData:", error);
+        console.error("Error in saveData:", error);
+        // Re-throw to allow UI to catch and notify the user of a save failure.
         throw error;
     }
 };

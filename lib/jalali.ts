@@ -30,7 +30,7 @@ export function gregorianToJalali(gy: number, gm: number, gd: number): [number, 
 export function jalaliToGregorian(jy: number, jm: number, jd: number): [number, number, number] {
   const j_y = jy + 1595;
   let days = -355668 + (365 * j_y) + (Math.floor(j_y / 33) * 8) + Math.floor(((j_y % 33) + 3) / 4) + jd + ((jm < 7) ? (jm - 1) * 31 : ((jm - 7) * 30) + 186);
-  
+
   let gy = 400 * Math.floor(days / 146097);
   days %= 146097;
 
@@ -42,7 +42,7 @@ export function jalaliToGregorian(jy: number, jm: number, jd: number): [number, 
 
   gy += 4 * Math.floor(days / 1461);
   days %= 1461;
-  
+
   let gm = 0, gd = 0;
   if (days > 0) {
     gy += Math.floor((days - 1) / 365);
@@ -57,7 +57,7 @@ export function jalaliToGregorian(jy: number, jm: number, jd: number): [number, 
     }
     days -= sal_a[gm];
   }
-  
+
   return [gy, gm, gd];
 }
 
@@ -65,13 +65,12 @@ export function jalaliToGregorian(jy: number, jm: number, jd: number): [number, 
 export function toJalaliDateString(isoDate: string, options: { format?: 'numeric' | 'long' } = {}): string {
     const date = new Date(isoDate);
     // Use UTC methods to extract date components, avoiding local timezone shifts.
-    // FIX: Corrected typo in function name from gregorianToJali to gregorianToJalali
     const [jy, jm, jd] = gregorianToJalali(date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate());
 
     if (options.format === 'long') {
         return `${jd.toLocaleString('fa-IR')} ${t.jalaliMonths[jm - 1]} ${jy.toLocaleString('fa-IR')}`;
     }
-    
+
     // Default to numeric
     const fJm = String(jm).padStart(2, '0');
     const fJd = String(jd).padStart(2, '0');
@@ -84,7 +83,7 @@ export function parseJalaliDate(jalaliDate: string): Date | null {
 
   const [ , jy, jm, jd] = parts.map(Number);
   const [gy, gm, gd] = jalaliToGregorian(jy, jm, jd);
-  
+
   // Create Date object at midnight UTC for the specified Gregorian date.
   // This avoids local timezone ambiguity that can cause off-by-one-day errors.
   const resultDate = new Date(Date.UTC(gy, gm - 1, gd));

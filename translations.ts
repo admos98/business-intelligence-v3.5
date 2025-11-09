@@ -263,7 +263,4 @@ export const t = {
   generatingSummary: "در حال تولید خلاصه...",
   noDataForSummary: "داده کافی برای نمایش خلاصه در این دوره وجود ندارد.",
   save: "ذخیره",
-
-  // Settings
-  settingsTitle: "تنظیمات",
 };

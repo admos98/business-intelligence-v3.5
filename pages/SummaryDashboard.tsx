@@ -8,8 +8,9 @@ import { generateExecutiveSummary } from '../lib/gemini';
 import SkeletonLoader from '../components/common/SkeletonLoader';
 import CurrencyDisplay from '../components/common/CurrencyDisplay';
 import { useToast } from '../components/common/Toast';
+import { Chart, registerables, ChartConfiguration, ChartTypeRegistry } from 'chart.js';
 
-declare var Chart: any;
+Chart.register(...registerables);
 
 type Period = '7d' | '30d' | 'mtd' | 'ytd' | 'all';
 
@@ -40,9 +41,9 @@ const SummaryDashboard: React.FC<SummaryDashboardProps> = ({ onBack, onLogout })
   const [isUpdating, setIsUpdating] = useState(false);
 
   const spendingTimeChartRef = useRef<HTMLCanvasElement | null>(null);
-  const spendingTimeChartInstance = useRef<any | null>(null);
+  const spendingTimeChartInstance = useRef<Chart | null>(null);
   const spendingCategoryChartRef = useRef<HTMLCanvasElement | null>(null);
-  const spendingCategoryChartInstance = useRef<any | null>(null);
+  const spendingCategoryChartInstance = useRef<Chart | null>(null);
 
   useEffect(() => {
     setIsUpdating(true);
@@ -113,7 +114,7 @@ const SummaryDashboard: React.FC<SummaryDashboardProps> = ({ onBack, onLogout })
   const lineChartOptions = useMemo(() => ({
       responsive: true,
       maintainAspectRatio: false,
-      interaction: { intersect: false, mode: 'index' },
+      interaction: { intersect: false, mode: 'index' as const },
       scales: {
           x: {
               ticks: {
@@ -158,7 +159,7 @@ const SummaryDashboard: React.FC<SummaryDashboardProps> = ({ onBack, onLogout })
       maintainAspectRatio: false,
       plugins: {
           legend: {
-              position: 'right',
+              position: 'right' as const,
               labels: { font: { family: "'Vazirmatn', sans-serif" }}
           },
           tooltip: {

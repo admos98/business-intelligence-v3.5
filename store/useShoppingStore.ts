@@ -97,21 +97,23 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
       // Auth Slice
       currentUser: null,
       login: async (username, password) => {
-        // In a real app, this would fetch a backend endpoint.
-        // We simulate this for demonstration.
-        // const response = await fetch('/api/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) });
-        // if (response.ok) {
-        //   const user = await response.json();
-        //   set({ currentUser: user });
-        //   return true;
-        // }
-        // return false;
+        try {
+            const response = await fetch('/api/auth', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password }),
+            });
 
-        if (username.toLowerCase() === 'mehrnoosh' && password === 'cafe') {
-            set({ currentUser: { id: 'user-1', username: 'mehrnoosh' } });
-            return true;
+            if (response.ok) {
+                const user = await response.json();
+                set({ currentUser: user });
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error("Login request failed:", error);
+            return false;
         }
-        return false;
       },
       logout: () => {
         // In a real app, you might want to notify the backend.
@@ -564,12 +566,10 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
                     ? list.items.map(item => ({ ...item, purchaseDate: listDate }))
                     : [];
             })
-            // FIX: Corrected filter to handle paidPrice being 0. `!= null` also acts as a type guard for TypeScript.
             .filter(item => item.status === ItemStatus.Bought && item.paidPrice != null);
 
         if (allPurchases.length === 0) return null;
 
-        // FIX: Removed `!` non-null assertions as they are no longer needed after the filter fix, resolving multiple type errors.
         const kpis = {
             totalSpend: allPurchases.reduce((sum, item) => sum + item.paidPrice, 0),
             totalItems: new Set(allPurchases.map(item => item.name)).size,

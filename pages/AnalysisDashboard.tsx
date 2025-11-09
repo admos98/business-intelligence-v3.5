@@ -10,8 +10,10 @@ import CurrencyDisplay from '../components/common/CurrencyDisplay';
 import { parseJalaliDate, toJalaliDateString } from '../lib/jalali';
 import JalaliCalendar from '../components/common/JalaliCalendar';
 import { useToast } from '../components/common/Toast';
+import { Chart, registerables } from 'chart.js';
 
-declare var Chart: any;
+Chart.register(...registerables);
+
 
 // Helper Types
 type Metric = 'totalSpend' | 'totalQuantity' | 'uniquePurchases' | 'avgPricePerUnit';
@@ -92,7 +94,7 @@ const DataExplorer: React.FC<DataExplorerProps> = ({ onBack, onLogout }) => {
   const [isAiLoading, setIsAiLoading] = useState(false);
 
   const chartRef = useRef<HTMLCanvasElement | null>(null);
-  const chartInstance = useRef<any | null>(null);
+  const chartInstance = useRef<Chart | null>(null);
 
   const handleConfigChange = <K extends keyof AnalysisConfig>(key: K, value: AnalysisConfig[K]) => {
     setConfig(prev => ({ ...prev, [key]: value }));
@@ -198,7 +200,6 @@ const DataExplorer: React.FC<DataExplorerProps> = ({ onBack, onLogout }) => {
 
         config.metrics.forEach((metric, index) => {
             datasets.push({
-                // FIX: Removed unnecessary and problematic 'as string' cast.
                 label: METRIC_LABELS[metric],
                 data: tableData.map(d => d[metric]),
                 backgroundColor: chartColors[index % chartColors.length],

@@ -320,7 +320,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onSelectList, onViewAnalysis, onV
         onClose={() => setDeleteConfirm({ ...deleteConfirm, isOpen: false })}
         onConfirm={confirmDelete}
         title={t.confirmDeleteTitle}
-        // FIX: Removed unnecessary and problematic 'as string' cast.
         message={t.confirmDeleteList(deleteConfirm.listName)}
         variant="danger"
       />

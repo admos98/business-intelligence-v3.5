@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
+:root {
+  --font-sans: 'Vazirmatn', 'sans-serif';
+}
+
+/* Light Theme */
+.theme-light {
+  --color-background: #F8F9FA; /* Very light grey */
+  --color-surface: #FFFFFF;    /* White */
+  --color-primary: #212529;   /* Dark Grey for text */
+  --color-secondary: #6C757D;  /* Muted Grey for text */
+  --color-accent: #0D6EFD;     /* Bootstrap Blue */
+  --color-accent-soft: #0D6EFD26;
+  --color-accent-text: #FFFFFF;
+  --color-danger: #DC3545;
+  --color-danger-soft: #F8D7DA;
+  --color-success: #198754;
+  --color-success-soft: #D1E7DD;
+  --color-border: #E9ECEF; /* Lighter border */
+  --logo-bg: #212529;
+  --logo-fg: #FFFFFF;
+  --color-chart-1: #0D6EFD;
+  --color-chart-2: #6C757D;
+  --color-chart-3: #198754;
+  --color-chart-4: #FFC107;
+  --color-chart-5: #0DCAF0;
+}
+
+/* Dark Theme */
+.theme-dark {
+  --color-background: #121212; /* Almost black */
+  --color-surface: #1E1E1E;    /* Dark Grey */
+  --color-primary: #E9ECEF;    /* Light Grey for text */
+  --color-secondary: #ADB5BD;  /* Muted light grey */
+  --color-accent: #0DCAF0;     /* Cyan */
+  --color-accent-soft: #0DCAF026;
+  --color-accent-text: #121212;
+  --color-danger: #F28B82;     /* Lighter red */
+  --color-danger-soft: rgba(242, 139, 130, 0.15);
+  --color-success: #81C995;    /* Lighter green */
+  --color-success-soft: rgba(129, 201, 149, 0.15);
+  --color-border: #343A40;     /* Darker border */
+  --logo-bg: #E9ECEF;
+  --logo-fg: #121212;
+  --color-chart-1: #0DCAF0;
+  --color-chart-2: #ADB5BD;
+  --color-chart-3: #81C995;
+  --color-chart-4: #FDD663;
+  --color-chart-5: #A370F7;
+}
