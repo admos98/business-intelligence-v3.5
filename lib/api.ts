@@ -12,7 +12,11 @@ export const fetchData = async (githubToken: string, gistId: string): Promise<St
     if (!githubToken || !gistId) {
         throw new Error("GitHub Token or Gist ID is missing.");
     }
-    
+        console.log("TOKEN FROM VERCEL IS:", githubToken);
+
+    if (!githubToken || !gistId) {
+        throw new Error("GitHub Token or Gist ID is missing.");
+    }
     try {
         const response = await fetch(`${API_BASE_URL}/${gistId}`, {
             method: 'GET',
@@ -34,7 +38,7 @@ export const fetchData = async (githubToken: string, gistId: string): Promise<St
         }
 
         const data = await response.json();
-        
+
         if (data.files && Object.keys(data.files).length > 0) {
             const files = data.files;
             let fileToUse = null;
@@ -55,7 +59,7 @@ export const fetchData = async (githubToken: string, gistId: string): Promise<St
                     }
                 }
             }
-            
+
             if (fileToUse && fileToUse.content) {
                 try {
                     return JSON.parse(fileToUse.content);
@@ -67,7 +71,7 @@ export const fetchData = async (githubToken: string, gistId: string): Promise<St
                 }
             }
         }
-        
+
         console.warn(`No file with content found in the Gist. Returning empty state.`);
         return null; // File doesn't exist or is empty, treat as new.
 
@@ -83,7 +87,7 @@ export const saveData = async (githubToken: string, gistId: string, data: Stored
         console.warn("GitHub Token or Gist ID is missing. Skipping save.");
         return;
     }
-    
+
     try {
         // Always save with the consistent filename the app expects.
         const FILENAME = 'mehrnoosh-cafe-data.json';
