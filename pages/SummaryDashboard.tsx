@@ -32,7 +32,7 @@ const SummaryDashboard: React.FC<SummaryDashboardProps> = ({ onBack, onLogout })
   const [period, setPeriod] = useState<Period>('30d');
   const getSummaryData = useShoppingStore(state => state.getSummaryData);
   const { addToast } = useToast();
-  
+
   const [summaryData, setSummaryData] = useState<SummaryData | null>(null);
   const [aiSummary, setAiSummary] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
@@ -54,7 +54,7 @@ const SummaryDashboard: React.FC<SummaryDashboardProps> = ({ onBack, onLogout })
         }
         setIsUpdating(false);
     }, 100); // Small delay to allow UI to show loading state
-    
+
     return () => clearTimeout(timer);
   }, [period, getSummaryData]);
 
@@ -89,7 +89,7 @@ const SummaryDashboard: React.FC<SummaryDashboardProps> = ({ onBack, onLogout })
       }
       return value;
     }, 2);
-    
+
     const blob = new Blob([dataString], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -115,21 +115,21 @@ const SummaryDashboard: React.FC<SummaryDashboardProps> = ({ onBack, onLogout })
       maintainAspectRatio: false,
       interaction: { intersect: false, mode: 'index' },
       scales: {
-          x: { 
-              ticks: { 
+          x: {
+              ticks: {
                   font: { family: "'Vazirmatn', sans-serif" },
                   autoSkip: true,
                   maxRotation: 45,
                   minRotation: 0,
-              } 
+              }
           },
-          y: { 
-              ticks: { 
+          y: {
+              ticks: {
                   font: { family: "'Vazirmatn', sans-serif" },
                   callback: function(value: number | string) {
                       return formatLargeNumber(typeof value === 'string' ? parseFloat(value) : value);
-                  } 
-              } 
+                  }
+              }
           }
       },
       plugins: {
@@ -156,10 +156,10 @@ const SummaryDashboard: React.FC<SummaryDashboardProps> = ({ onBack, onLogout })
   const doughnutChartOptions = useMemo(() => ({
       responsive: true,
       maintainAspectRatio: false,
-      plugins: { 
-          legend: { 
-              position: 'right', 
-              labels: { font: { family: "'Vazirmatn', sans-serif" }} 
+      plugins: {
+          legend: {
+              position: 'right',
+              labels: { font: { family: "'Vazirmatn', sans-serif" }}
           },
           tooltip: {
               bodyFont: { family: "'Vazirmatn', sans-serif" },
@@ -188,7 +188,7 @@ const SummaryDashboard: React.FC<SummaryDashboardProps> = ({ onBack, onLogout })
       const styles = getComputedStyle(document.documentElement);
       const accentColor = styles.getPropertyValue('--color-accent').trim();
       const accentSoftColor = styles.getPropertyValue('--color-accent-soft').trim();
-      
+
       const ctx = spendingTimeChartRef.current.getContext('2d');
       if (ctx) {
         spendingTimeChartInstance.current = new Chart(ctx, {
@@ -286,7 +286,7 @@ const SummaryDashboard: React.FC<SummaryDashboardProps> = ({ onBack, onLogout })
               </div>
             </Card>
         </div>
-        
+
         <Card title={t.aiExecutiveSummary}>
             {isAiLoading ? <SkeletonLoader lines={5} /> : <p className="text-primary whitespace-pre-wrap leading-relaxed">{aiSummary}</p>}
         </Card>

@@ -40,8 +40,8 @@ const Header: React.FC<HeaderProps> = ({ title, onBack, backText, children, onLo
     <header className="bg-surface/80 backdrop-blur-lg sticky top-0 z-20 border-b border-border">
       <div className="max-w-7xl mx-auto py-3 px-4 sm:px-6 lg:px-8 relative">
         <div className="flex items-center justify-between gap-4">
-          
-          {/* RIGHT Group (Logo & Title) - Placed first for RTL */}
+
+          {/* RIGHT Group (Logo & Title) */}
           <div className="flex items-center gap-3">
              <h1 className="text-lg font-bold text-primary tracking-tight text-right">
                 {title}
@@ -49,14 +49,14 @@ const Header: React.FC<HeaderProps> = ({ title, onBack, backText, children, onLo
              <div className="w-10 h-10" dangerouslySetInnerHTML={{ __html: logoSvg }} />
           </div>
 
-          {/* LEFT Group (Buttons) - Placed second for RTL */}
+          {/* LEFT Group (Buttons) */}
           <div className="flex items-center justify-end gap-2">
             {onBack && (
               <button onClick={onBack} className="text-accent hover:underline transition-colors text-sm font-medium hidden sm:block">
                 &larr; {backText}
               </button>
             )}
-            {/* Desktop Buttons */}
+
             <div className="hidden sm:flex items-center gap-2">
                 {children}
                 {onLogout && (
@@ -65,10 +65,9 @@ const Header: React.FC<HeaderProps> = ({ title, onBack, backText, children, onLo
                     </button>
                 )}
             </div>
-            
+
             <ThemeToggleButton theme={theme} toggleTheme={toggleTheme} />
 
-            {/* Mobile Menu Button */}
             {(React.Children.count(children) > 0 || onLogout || onBack) && (
                 <div className="sm:hidden">
                     <button
@@ -83,10 +82,9 @@ const Header: React.FC<HeaderProps> = ({ title, onBack, backText, children, onLo
           </div>
 
         </div>
-        
-        {/* Mobile Dropdown Menu */}
+
         {isMenuOpen && (React.Children.count(children) > 0 || onLogout || onBack) && (
-            <div ref={menuRef} className="sm:hidden absolute top-full left-4 mt-2 w-56 bg-surface rounded-md shadow-lg border border-border z-30 p-2 animate-fade-in-down">
+            <div ref={menuRef} className="sm:hidden absolute top-full right-4 mt-2 w-56 bg-surface rounded-md shadow-lg border border-border z-30 p-2 animate-fade-in-down">
                 <div className="flex flex-col gap-1">
                     {onBack && (
                       <button onClick={() => { onBack(); setIsMenuOpen(false); }} className="w-full text-right justify-start px-3 py-2 text-sm text-accent font-medium rounded-lg hover:bg-border transition-colors flex items-center gap-2">
@@ -108,7 +106,8 @@ const Header: React.FC<HeaderProps> = ({ title, onBack, backText, children, onLo
                         }
                         return child;
                     })}
-                    {(onBack || React.Children.count(children) > 0) && onLogout && <div className="border-t border-border my-1"></div>}
+                    {(onBack || React.Children.count(children) > 0) && (onLogout) && <div className="border-t border-border my-1"></div>}
+
                     {onLogout && (
                           <button onClick={() => { onLogout(); setIsMenuOpen(false); }} className="w-full text-right justify-start px-3 py-2 text-sm text-danger font-medium rounded-lg hover:bg-danger-soft transition-colors flex items-center gap-2">
                               {t.logout}

@@ -1,12 +1,12 @@
 import { create } from 'zustand';
-import { ShoppingList, ShoppingItem, CafeCategory, Vendor, OcrResult, Unit, ItemStatus, PaymentStatus, PaymentMethod, PendingPaymentItem, SmartSuggestion, SummaryData, RecentPurchaseItem, MasterItem, AuthSlice, User, SettingsSlice, ShoppingState } from '../types';
+import { ShoppingList, ShoppingItem, CafeCategory, Vendor, OcrResult, Unit, ItemStatus, PaymentStatus, PaymentMethod, PendingPaymentItem, SmartSuggestion, SummaryData, RecentPurchaseItem, MasterItem, AuthSlice, User, ShoppingState } from '../types';
 import { t } from '../translations';
 import { parseJalaliDate, toJalaliDateString } from '../lib/jalali';
 import { fetchData, saveData } from '../lib/api';
 
 type SummaryPeriod = '7d' | '30d' | 'mtd' | 'ytd' | 'all';
 
-interface FullShoppingState extends AuthSlice, SettingsSlice, ShoppingState {
+interface FullShoppingState extends AuthSlice, ShoppingState {
   lists: ShoppingList[];
   customCategories: string[];
   vendors: Vendor[];
@@ -72,11 +72,9 @@ let debounceTimer: number;
 const debouncedSaveData = (state: FullShoppingState) => {
     clearTimeout(debounceTimer);
     debounceTimer = window.setTimeout(() => {
-        const { githubToken, gistId, currentUser, isHydrating } = state;
-        // Do not save if no credentials, no user, or during initial hydration.
-        // A save is only triggered by a direct user action, so this check prevents
-        // saving a blank state on a failed initial load.
-        if (!githubToken || !gistId || !currentUser || isHydrating) {
+        const { currentUser, isHydrating } = state;
+        // Do not save if no user is logged in, or during initial hydration.
+        if (!currentUser || isHydrating) {
             return;
         }
 
@@ -87,7 +85,7 @@ const debouncedSaveData = (state: FullShoppingState) => {
             categoryVendorMap: state.categoryVendorMap,
             itemInfoMap: state.itemInfoMap,
         };
-        saveData(githubToken, gistId, dataToSave).catch(err => console.error("Auto-save failed:", err));
+        saveData(dataToSave).catch(err => console.error("Auto-save failed:", err));
     }, 1500); // Debounce for 1.5 seconds
 };
 
@@ -95,33 +93,36 @@ const debouncedSaveData = (state: FullShoppingState) => {
 export const useShoppingStore = create<FullShoppingState>((set, get) => ({
       isHydrating: true,
       ...emptyState,
-      githubToken: import.meta.env.VITE_GH_TOKEN,
-      gistId: import.meta.env.VITE_GIST_ID,
 
       // Auth Slice
-      users: [{ id: 'user-1', username: 'moslem', passwordHash: 'Pedro3313' },{ id: 'user-2', username: 'hosseinmallah', passwordHash: '8044cafe' }],
       currentUser: null,
-      login: (username, password) => {
-        const user = get().users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.passwordHash === password);
-        if (user) {
-          set({ currentUser: user });
-          return true;
+      login: async (username, password) => {
+        // In a real app, this would fetch a backend endpoint.
+        // We simulate this for demonstration.
+        // const response = await fetch('/api/auth/login', { method: 'POST', body: JSON.stringify({ username, password }) });
+        // if (response.ok) {
+        //   const user = await response.json();
+        //   set({ currentUser: user });
+        //   return true;
+        // }
+        // return false;
+
+        if (username.toLowerCase() === 'mehrnoosh' && password === 'cafe') {
+            set({ currentUser: { id: 'user-1', username: 'mehrnoosh' } });
+            return true;
         }
         return false;
       },
       logout: () => {
+        // In a real app, you might want to notify the backend.
+        // await fetch('/api/auth/logout', { method: 'POST' });
         set({ currentUser: null, ...emptyState, isHydrating: false });
       },
 
       hydrateFromCloud: async () => {
-          const { githubToken, gistId } = get();
-          if (!githubToken || !gistId) {
-              set({ ...emptyState, isHydrating: false });
-              return;
-          }
           set({ isHydrating: true });
           try {
-              const data = await fetchData(githubToken, gistId);
+              const data = await fetchData();
               if (data && data.lists) { // Basic check for valid data structure
                   set({ ...data, isHydrating: false });
               } else {
@@ -132,11 +133,6 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
               console.error("Failed to hydrate from cloud:", error);
               set({ ...emptyState, isHydrating: false }); // Fallback to empty state on error
           }
-      },
-
-      // FIX: Implement missing setApiCredentials function
-      setApiCredentials: (githubToken: string, gistId: string) => {
-        set({ githubToken, gistId });
       },
 
       createList: (date) => {
@@ -362,7 +358,6 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
         return Array.from(itemNames).sort((a,b) => a.localeCompare(b, 'fa'));
       },
 
-      // FIX: Complete the implementation of getAllKnownItems to correctly calculate stats and return MasterItem[]
       getAllKnownItems: () => {
         const allPurchasedItems = get().lists
             .flatMap(list => list.items.map(item => ({ ...item, purchaseDate: new Date(list.createdAt) })))
@@ -569,12 +564,14 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
                     ? list.items.map(item => ({ ...item, purchaseDate: listDate }))
                     : [];
             })
-            .filter(item => item.status === ItemStatus.Bought && item.paidPrice);
+            // FIX: Corrected filter to handle paidPrice being 0. `!= null` also acts as a type guard for TypeScript.
+            .filter(item => item.status === ItemStatus.Bought && item.paidPrice != null);
 
         if (allPurchases.length === 0) return null;
 
+        // FIX: Removed `!` non-null assertions as they are no longer needed after the filter fix, resolving multiple type errors.
         const kpis = {
-            totalSpend: allPurchases.reduce((sum, item) => sum + item.paidPrice!, 0),
+            totalSpend: allPurchases.reduce((sum, item) => sum + item.paidPrice, 0),
             totalItems: new Set(allPurchases.map(item => item.name)).size,
             avgDailySpend: 0,
             topCategory: null as { name: string, amount: number } | null,
@@ -585,7 +582,7 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
         kpis.avgDailySpend = kpis.totalSpend / totalDays;
 
         const categorySpend = allPurchases.reduce((acc, item) => {
-            acc[item.category] = (acc[item.category] || 0) + item.paidPrice!;
+            acc[item.category] = (acc[item.category] || 0) + item.paidPrice;
             return acc;
         }, {} as Record<string, number>);
 
@@ -596,7 +593,7 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
         const vendorSpend = allPurchases.reduce((acc, item) => {
             if (item.vendorId) {
                 const vendorName = vendorMap.get(item.vendorId) || "Unknown";
-                acc[vendorName] = (acc[vendorName] || 0) + item.paidPrice!;
+                acc[vendorName] = (acc[vendorName] || 0) + item.paidPrice;
             }
             return acc;
         }, {} as Record<string, number>);
@@ -613,7 +610,7 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
         }
         allPurchases.forEach(item => {
             const key = toJalaliDateString(item.purchaseDate.toISOString());
-            timeMap.set(key, (timeMap.get(key) || 0) + item.paidPrice!);
+            timeMap.set(key, (timeMap.get(key) || 0) + item.paidPrice);
         });
         spendingOverTime.labels = Array.from(timeMap.keys());
         spendingOverTime.data = Array.from(timeMap.values());
@@ -645,21 +642,17 @@ export const useShoppingStore = create<FullShoppingState>((set, get) => ({
                     }),
                 }));
 
-                set({
+                const dataToSave = {
                     lists: cleanedLists,
                     customCategories: data.customCategories || [],
                     vendors: data.vendors || [],
                     categoryVendorMap: data.categoryVendorMap || {},
                     itemInfoMap: data.itemInfoMap || {},
-                });
+                }
+
+                set(dataToSave);
                 // After importing, immediately save to the cloud
-                await saveData(get().githubToken, get().gistId, {
-                    lists: cleanedLists,
-                    customCategories: data.customCategories || [],
-                    vendors: data.vendors || [],
-                    categoryVendorMap: data.categoryVendorMap || {},
-                    itemInfoMap: data.itemInfoMap || {},
-                });
+                await saveData(dataToSave);
             } else {
                 throw new Error("Invalid data format");
             }

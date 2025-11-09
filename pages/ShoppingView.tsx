@@ -37,7 +37,7 @@ interface StructuredReportData {
 const ShoppingView: React.FC<ShoppingViewProps> = ({ listId, onBack, onLogout }) => {
   const { lists, updateList, addCustomData, allCategories, vendors, addOcrPurchase, findOrCreateVendor, updateCategoryVendorMap, getKnownItemNames, getItemInfo, getLatestPricePerUnit, updateItem } = useShoppingStore();
   const list = useMemo(() => lists.find(l => l.id === listId)!, [lists, listId]);
-  
+
   const [newItemName, setNewItemName] = useState('');
   const [newItemAmount, setNewItemAmount] = useState<number | ''>('');
   const [newItemUnit, setNewItemUnit] = useState<Unit>(Unit.Piece);
@@ -50,7 +50,7 @@ const ShoppingView: React.FC<ShoppingViewProps> = ({ listId, onBack, onLogout })
   const [isOcrModalOpen, setIsOcrModalOpen] = useState(false);
   const [selectedItemIds, setSelectedItemIds] = useState<Set<string>>(new Set());
   const [isPdfLoading, setIsPdfLoading] = useState(false);
-  
+
   const { addToast } = useToast();
   const vendorMap = useMemo(() => new Map<string, string>(vendors.map(v => [v.id, v.name])), [vendors]);
 
@@ -59,7 +59,7 @@ const ShoppingView: React.FC<ShoppingViewProps> = ({ listId, onBack, onLogout })
   const onUpdateList = (updatedList: ShoppingList) => {
     updateList(listId, updatedList);
   };
-  
+
   const handleNewItemNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value;
     setNewItemName(name);
@@ -75,7 +75,7 @@ const ShoppingView: React.FC<ShoppingViewProps> = ({ listId, onBack, onLogout })
     if (newItemName.trim() && Number(newItemAmount) > 0) {
       const latestPricePerUnit = getLatestPricePerUnit(newItemName.trim(), newItemUnit);
       const estimatedPrice = latestPricePerUnit ? latestPricePerUnit * Number(newItemAmount) : undefined;
-      
+
       const newItem: ShoppingItem = {
         id: `item-${Date.now()}`, name: newItemName.trim(), amount: Number(newItemAmount),
         unit: newItemUnit, status: ItemStatus.Pending, category: newItemCategory.trim() || t.other,
@@ -106,7 +106,7 @@ const ShoppingView: React.FC<ShoppingViewProps> = ({ listId, onBack, onLogout })
     if (itemToUpdate && itemToUpdate.category && vendorId) {
         updateCategoryVendorMap(itemToUpdate.category, vendorId);
     }
-    
+
     updateItem(listId, itemId, { status: ItemStatus.Bought, paidPrice: totalPrice, purchasedAmount, vendorId, paymentMethod, paymentStatus });
     addToast(`${t.buy} ${list.items.find(i=>i.id===itemId)?.name}`, 'success');
     setItemToBuy(null);
@@ -114,16 +114,16 @@ const ShoppingView: React.FC<ShoppingViewProps> = ({ listId, onBack, onLogout })
 
    const handleSavePurchasedItem = (itemId: string, updates: Partial<ShoppingItem>) => {
     const itemToUpdate = list.items.find(i => i.id === itemId);
-    
+
     if (itemToUpdate && itemToUpdate.category && updates.vendorId) {
         updateCategoryVendorMap(itemToUpdate.category, updates.vendorId);
     }
-    
+
     updateItem(listId, itemId, updates);
     addToast(t.itemUpdated, 'info');
     setItemToEditPurchased(null);
   };
-  
+
   const handleConfirmBulkBuy = (updatedItems: ShoppingItem[], sharedVendorName?: string) => {
     const vendorId = findOrCreateVendor(sharedVendorName);
     const updatedItemMap = new Map(updatedItems.map(item => {
@@ -132,7 +132,7 @@ const ShoppingView: React.FC<ShoppingViewProps> = ({ listId, onBack, onLogout })
         }
         return [item.id, { ...item, vendorId }];
     }));
-    
+
     onUpdateList({ ...list, items: list.items.map(item => updatedItemMap.get(item.id) || item) });
     addToast(t.itemsBought, 'success');
     setIsBulkBuyModalOpen(false);
@@ -151,7 +151,7 @@ const ShoppingView: React.FC<ShoppingViewProps> = ({ listId, onBack, onLogout })
     onUpdateList({ ...list, items: list.items.filter(item => item.id !== itemId) });
     addToast(t.itemDeleted, 'info');
   };
-  
+
   const handleSelectItem = (itemId: string) => {
     const newSelection = new Set(selectedItemIds);
     newSelection.has(itemId) ? newSelection.delete(itemId) : newSelection.add(itemId);
@@ -188,7 +188,7 @@ const ShoppingView: React.FC<ShoppingViewProps> = ({ listId, onBack, onLogout })
                     vendorName: vendorName,
                     items: vendorsData[vendorName]
                 }));
-            
+
             return {
                 category: category,
                 vendors: sortedVendors
@@ -203,10 +203,10 @@ const ShoppingView: React.FC<ShoppingViewProps> = ({ listId, onBack, onLogout })
     try {
       // Use the new deterministic grouping function
       const structuredData = groupAndSortPurchasedItems(boughtItems, vendorMap);
-      
+
       const reportComponent = (
-        <ShoppingReportForPdf 
-          list={list} 
+        <ShoppingReportForPdf
+          list={list}
           structuredData={structuredData}
           totalCost={totalCost}
           totalDue={totalDue}
@@ -242,7 +242,7 @@ const ShoppingView: React.FC<ShoppingViewProps> = ({ listId, onBack, onLogout })
 
 
   const pendingItems = list.items.filter(item => item.status === ItemStatus.Pending);
-  
+
   const groupItemsByCategory = (items: ShoppingItem[]): Record<string, ShoppingItem[]> => {
     return items.reduce((acc, item) => {
       const category = item.category || t.other;
@@ -284,7 +284,7 @@ const ShoppingView: React.FC<ShoppingViewProps> = ({ listId, onBack, onLogout })
                         <datalist id="known-items">
                             {knownItemNames.map(name => <option key={name} value={name} />)}
                         </datalist>
-                        
+
                         <div className="grid grid-cols-2 gap-4">
                             <input type="number" value={newItemAmount} onChange={e => setNewItemAmount(e.target.value === '' ? '' : parseFloat(e.target.value))} placeholder={t.amount} className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"/>
                             <select value={newItemUnit} onChange={e => setNewItemUnit(e.target.value as Unit)} className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent">{Object.values(Unit).map(unit => <option key={unit} value={unit}>{unit}</option>)}</select>
@@ -292,7 +292,7 @@ const ShoppingView: React.FC<ShoppingViewProps> = ({ listId, onBack, onLogout })
 
                         <input type="text" list="categories" value={newItemCategory} onChange={e => setNewItemCategory(e.target.value)} placeholder={t.categoryPlaceholder} className="w-full px-3 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"/>
                         <datalist id="categories">{allCategories().map(cat => <option key={cat} value={cat}/>)}</datalist>
-                        
+
                         <div className="grid grid-cols-2 gap-4">
                             <button onClick={() => setIsOcrModalOpen(true)} className="px-4 py-2 bg-border text-primary font-medium rounded-lg hover:bg-border/70 transition-colors h-full">{t.addFromReceipt}</button>
                             <button onClick={handleAddItem} className="w-full px-4 py-2 bg-accent text-accent-text font-medium rounded-lg hover:opacity-90 transition-opacity">{t.addItem}</button>
@@ -348,10 +348,10 @@ const ShoppingView: React.FC<ShoppingViewProps> = ({ listId, onBack, onLogout })
                                     </ul>
                                 </div>
                             ))}
-                        </div>) 
+                        </div>)
                     : <p className="text-secondary">{t.allItemsPurchased}</p>}
                 </section>
-                
+
                 <section>
                     <h2 className="text-xl font-bold text-primary border-b border-border pb-2 mb-4">{t.purchased} ({boughtItems.length})</h2>
                     {boughtItems.length > 0 ? (
@@ -391,19 +391,19 @@ const ShoppingView: React.FC<ShoppingViewProps> = ({ listId, onBack, onLogout })
                                     </ul>
                                 </div>
                          ))}
-                    </div>) 
+                    </div>)
                     : <p className="text-secondary">{t.noItemsPurchasedYet}</p>}
                 </section>
             </div>
        </div>
       </main>
-      
+
       {selectedItemIds.size > 0 && (
         <div className={`fixed bottom-0 left-0 right-0 bg-surface/80 backdrop-blur-lg shadow-lg z-20 border-t border-accent/50 transition-transform duration-300 ${selectedItemIds.size > 0 ? 'translate-y-0' : 'translate-y-full'}`}>
           <div className="max-w-7xl mx-auto p-3 flex justify-between items-center"><span className="font-bold text-primary">{t.itemsSelected(selectedItemIds.size)}</span><button onClick={() => setIsBulkBuyModalOpen(true)} className="px-5 py-2 bg-accent text-accent-text font-medium rounded-lg hover:opacity-90 transition-opacity shadow-sm">{t.bulkBuy}</button></div>
         </div>
       )}
-      
+
       {itemToBuy && <BuyItemModal item={itemToBuy} onClose={() => setItemToBuy(null)} onConfirm={handleConfirmBuy} />}
       {itemToEdit && <EditItemModal item={itemToEdit} onClose={() => setItemToEdit(null)} onSave={handleSaveEdit} />}
       {itemToEditPurchased && <EditPurchasedItemModal item={itemToEditPurchased} onClose={() => setItemToEditPurchased(null)} onSave={handleSavePurchasedItem} />}
@@ -422,18 +422,18 @@ const ShoppingReportForPdf: React.FC<{ list: ShoppingList, structuredData: Struc
         .pdf-render-container { padding: 25px !important; font-family: 'Vazirmatn', sans-serif; color: #000; background-color: #fff; line-height: 1.4 !important; }
         .pdf-render-container h1 { font-size: 18pt !important; font-weight: bold; text-align: center; margin-bottom: 8px !important; }
         .pdf-render-container .subtitle { text-align: center; color: #555; margin-bottom: 16px !important; font-size: 10pt !important; }
-        
+
         .pdf-render-container .summary-table { width: 60% !important; margin-left: auto !important; margin-right: auto !important; margin-bottom: 20px !important; font-size: 8pt !important; border-collapse: collapse !important; }
         .pdf-render-container .summary-table td { padding: 2px 4px !important; border: 1px solid #ccc !important; }
         .pdf-render-container .summary-table td:first-child { font-weight: bold; }
-        
+
         .pdf-render-container h2 { font-size: 14pt !important; font-weight: bold; margin-bottom: 8px !important; border-bottom: 1px solid #333 !important; padding-bottom: 3px !important; }
         .pdf-render-container .category-block { break-inside: avoid-page; margin-bottom: 12px !important; }
-        
+
         .pdf-render-container h3 { font-size: 11pt !important; font-weight: bold; margin-bottom: 6px !important; background-color: #f2f2f2 !important; padding: 4px 6px !important; border-radius: 3px; }
         .pdf-render-container .vendor-block { break-inside: avoid; margin-bottom: 10px !important; padding-left: 8px !important; }
         .pdf-render-container h4 { font-size: 9pt !important; font-weight: bold; color: #333; margin-bottom: 4px !important; }
-        
+
         .pdf-render-container .items-table { width: 100%; text-align: right; border-collapse: collapse !important; font-size: 8pt !important; }
         .pdf-render-container .items-table th, .pdf-render-container .items-table td { padding: 3px 4px !important; border: 1px solid #ddd !important; vertical-align: top; }
         .pdf-render-container .items-table th { background-color: #fafafa !important; font-weight: bold; }
@@ -442,7 +442,7 @@ const ShoppingReportForPdf: React.FC<{ list: ShoppingList, structuredData: Struc
 
       <h1>{list.name}</h1>
       <p className="subtitle">{t.reportSummary}</p>
-      
+
       <table className="summary-table">
         <tbody>
           <tr><td>{t.totalCost}</td><td>{totalCost.toLocaleString('fa-IR')} {t.currency}</td></tr>

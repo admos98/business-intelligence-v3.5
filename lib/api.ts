@@ -24,7 +24,77 @@ export const fetchData = async (githubToken: string, gistId: string): Promise<St
                 'Accept': 'application/vnd.github.v3+json',
                 'Authorization': `Bearer ${githubToken}`,
                 'X-GitHub-Api-Version': '2022-11-28',
+            },interface StoredData {
+    lists: any[];
+    customCategories: string[];
+    vendors: any[];
+    categoryVendorMap: Record<string, string>;
+    itemInfoMap: Record<string, any>;
+}
+
+export const fetchData = async (): Promise<StoredData | null> => {
+    try {
+        const response = await fetch('/api/data', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
             },
+        });
+
+        if (response.status === 404 || response.status === 204) {
+             console.log("No existing data found on backend.");
+             return null;
+        }
+
+        if (!response.ok) {
+            const errorBody = await response.text();
+            throw new Error(`Failed to fetch data from backend: ${response.status} ${response.statusText} - ${errorBody}`);
+        }
+
+        const data = await response.json();
+
+        if (data && data.content) {
+            try {
+                return JSON.parse(data.content);
+            } catch (e) {
+                console.error("Failed to parse JSON content from backend. The data may be corrupt.", e);
+                return null;
+            }
+        }
+
+        console.warn(`No file with content found via backend. Returning empty state.`);
+        return null; // File doesn't exist or is empty, treat as new.
+
+    } catch (error) {
+        console.error("Error in fetchData:", error);
+        throw error;
+    }
+};
+
+
+export const saveData = async (data: StoredData): Promise<void> => {
+    try {
+        const payload = {
+            content: JSON.stringify(data, null, 2),
+        };
+
+        const response = await fetch(`/api/data`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            const errorBody = await response.text();
+            throw new Error(`Failed to save data via backend: ${response.status} ${response.statusText} - ${errorBody}`);
+        }
+    } catch (error) {
+        console.error("Error in saveData:", error);
+        throw error;
+    }
+};
         });
 
         if (response.status === 404) {

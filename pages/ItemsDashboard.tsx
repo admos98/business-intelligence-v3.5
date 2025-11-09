@@ -18,7 +18,7 @@ const ItemsDashboard: React.FC<ItemsDashboardProps> = ({ onBack, onLogout }) => 
   const { getAllKnownItems } = useShoppingStore();
   const [modalState, setModalState] = useState<{ open: boolean; item?: MasterItem }>({ open: false });
   const { addToast } = useToast();
-  
+
   const allItems = useMemo(() => getAllKnownItems(), [getAllKnownItems]);
 
   const handleExportJson = () => {
@@ -58,7 +58,7 @@ const ItemsDashboard: React.FC<ItemsDashboardProps> = ({ onBack, onLogout }) => 
                 <div className="p-5 flex-grow">
                   <h2 className="text-lg font-bold text-primary mb-1">{item.name}</h2>
                   <p className="text-sm text-secondary mb-3">{item.category} / {item.unit}</p>
-                  
+
                    <div className="space-y-3 border-t border-border pt-3 text-sm">
                         <div className="flex justify-between items-center">
                             <span className="text-secondary">{t.lastPrice}:</span>

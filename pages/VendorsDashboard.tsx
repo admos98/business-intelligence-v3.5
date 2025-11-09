@@ -21,7 +21,7 @@ const VendorsDashboard: React.FC<VendorsDashboardProps> = ({ onBack, onLogout })
   const [modalState, setModalState] = useState<{ open: boolean; vendor?: Vendor }>({ open: false });
   const { addToast } = useToast();
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; vendor?: Vendor }>({ isOpen: false });
-  
+
   const vendorStats = useMemo(() => {
     const stats = new Map<string, { totalSpent: number; purchaseCount: number }>();
     lists.forEach(list => {

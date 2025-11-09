@@ -61,7 +61,7 @@ export interface ShoppingItem {
   amount: number;
   unit: Unit;
   status: ItemStatus;
-  category: string; 
+  category: string;
   paidPrice?: number;
   purchasedAmount?: number;
   vendorId?: string;
@@ -160,21 +160,12 @@ export interface SummaryData {
 export interface User {
   id: string;
   username: string;
-  passwordHash: string; // In a real app, this would be a hash, not plaintext
 }
 
 export interface AuthSlice {
-  users: User[];
   currentUser: User | null;
-  login: (username: string, password: string) => boolean;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
-}
-
-export interface SettingsSlice {
-  githubToken: string;
-  gistId: string;
-  // FIX: Add missing function to the SettingsSlice interface
-  setApiCredentials: (githubToken: string, gistId: string) => void;
 }
 
 export interface ShoppingState {

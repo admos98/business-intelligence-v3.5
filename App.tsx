@@ -36,7 +36,7 @@ const App: React.FC = () => {
     setActiveListId(null);
     setView(targetView);
   };
-  
+
   const handleLogout = () => {
     logout();
     setView('dashboard'); // Reset to default view on logout
@@ -88,7 +88,7 @@ const App: React.FC = () => {
         );
     }
   };
-  
+
   if (!currentUser) {
     return (
       <ToastProvider>

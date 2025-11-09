@@ -50,7 +50,12 @@ const GROUP_BY_LABELS: Record<GroupBy | 'none', string> = {
   date: t.date,
 };
 
-const DataExplorer: React.FC<{ onBack: () => void; onLogout: () => void; }> = ({ onBack, onLogout }) => {
+interface DataExplorerProps {
+    onBack: () => void;
+    onLogout: () => void;
+}
+
+const DataExplorer: React.FC<DataExplorerProps> = ({ onBack, onLogout }) => {
   const { lists, vendors, allCategories } = useShoppingStore();
   const { addToast } = useToast();
   const vendorMap = useMemo(() => new Map(vendors.map(v => [v.id, v.name])), [vendors]);
@@ -85,7 +90,7 @@ const DataExplorer: React.FC<{ onBack: () => void; onLogout: () => void; }> = ({
   const [aiInsight, setAiInsight] = useState('');
   const [aiQuery, setAiQuery] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
-  
+
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstance = useRef<any | null>(null);
 
@@ -96,7 +101,7 @@ const DataExplorer: React.FC<{ onBack: () => void; onLogout: () => void; }> = ({
   const handleFilterChange = <K extends keyof AnalysisConfig['filters']>(key: K, value: AnalysisConfig['filters'][K]) => {
      setConfig(prev => ({ ...prev, filters: { ...prev.filters, [key]: value } }));
   };
-  
+
   const handleRunAnalysis = () => {
     setIsProcessing(true);
     setProcessedData(null);
@@ -155,10 +160,10 @@ const DataExplorer: React.FC<{ onBack: () => void; onLogout: () => void; }> = ({
         } else {
             groupedMap.set('All Data', filteredItems);
         }
-        
+
         const tableData: Record<string, any>[] = [];
         const labels = Array.from(groupedMap.keys()).sort((a,b) => a.localeCompare(b, 'fa'));
-        
+
         labels.forEach(key => {
             const groupItems = groupedMap.get(key)!;
             const row: Record<string, any> = { [config.groupBy]: key };
@@ -193,24 +198,25 @@ const DataExplorer: React.FC<{ onBack: () => void; onLogout: () => void; }> = ({
 
         config.metrics.forEach((metric, index) => {
             datasets.push({
-                label: METRIC_LABELS[metric] as string,
+                // FIX: Removed unnecessary and problematic 'as string' cast.
+                label: METRIC_LABELS[metric],
                 data: tableData.map(d => d[metric]),
                 backgroundColor: chartColors[index % chartColors.length],
                 borderColor: chartColors[index % chartColors.length],
                 tension: 0.1,
             });
         });
-        
+
         setProcessedData({ kpis, chartData: { labels, datasets }, tableData });
         setIsProcessing(false);
     }, 100);
   };
-  
+
   const handleAskAI = async () => {
       if (!aiQuery.trim() || !processedData) return;
       setIsAiLoading(true);
       setAiInsight('');
-      
+
       try {
         const context = `
         Analysis Configuration:
@@ -250,7 +256,7 @@ const DataExplorer: React.FC<{ onBack: () => void; onLogout: () => void; }> = ({
         const isTimeSeries = config.groupBy === 'date';
         const isCategorical = ['category', 'vendor', 'item'].includes(config.groupBy);
         const isSingleMetricProportion = isCategorical && config.metrics.length === 1 && config.metrics[0] === 'totalSpend';
-        
+
         let chartType: 'line' | 'bar' | 'pie' = 'bar';
         if (isTimeSeries) chartType = 'line';
         if (isSingleMetricProportion) chartType = 'pie';
@@ -285,7 +291,7 @@ const DataExplorer: React.FC<{ onBack: () => void; onLogout: () => void; }> = ({
         </button>
       </Header>
       <div className="flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 overflow-hidden">
-        
+
         {/* Controls Sidebar */}
         <aside className="lg:col-span-3 bg-surface p-4 rounded-xl border border-border overflow-y-auto">
           <h2 className="text-lg font-bold mb-4">{t.exploreData}</h2>
@@ -324,7 +330,7 @@ const DataExplorer: React.FC<{ onBack: () => void; onLogout: () => void; }> = ({
                       ))}
                   </select>
                </div>
-              
+
                {/* Filters */}
                <div>
                 <h3 className="font-semibold text-primary mb-2">{t.filters}</h3>
@@ -373,7 +379,7 @@ const DataExplorer: React.FC<{ onBack: () => void; onLogout: () => void; }> = ({
                 </div>
            )}
         </main>
-        
+
         {/* AI Sidebar */}
         <aside className="lg:col-span-3 bg-surface p-4 rounded-xl border border-border flex flex-col overflow-y-auto">
            <h2 className="text-lg font-bold mb-4 flex-shrink-0">{t.aiBusinessAdvisor}</h2>

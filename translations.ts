@@ -55,7 +55,7 @@ export const t = {
   listNamePlaceholder: "مثلاً خریدهای هفتگی، لوازم قنادی",
   cancel: "انصراف",
   create: "ایجاد",
-  
+
   // Toasts
   listCreated: "لیست جدید با موفقیت ایجاد شد.",
   listUpdated: "لیست با موفقیت به‌روزرسانی شد.",
@@ -106,7 +106,7 @@ export const t = {
   predictingCategory: "در حال پیشبینی دسته‌بندی...",
   markAsPaid: "پرداخت شد",
   receipts: "رسیدها",
-  
+
   // Price Estimation
   estimatedPrice: "قیمت تخمینی",
   totalEstimatedCost: "جمع کل تخمینی",
@@ -120,7 +120,7 @@ export const t = {
   receipt: "رسید",
   paymentMethod: "روش پرداخت",
   paymentStatus: "وضعیت پرداخت",
-  
+
   // Edit Item Modal
   editItemTitle: "ویرایش قلم",
   editPurchasedItemTitle: "ویرایش قلم خریداری شده",
@@ -175,7 +175,7 @@ export const t = {
   ocrDatePlaceholder: "YYYY/MM/DD",
   paymentDetails: "جزئیات پرداخت",
   tomanEquivalent: (amount: string) => `معادل ${amount} تومان`,
-  
+
   // Data Explorer (Analysis Dashboard)
   dataExplorer: "کاوشگر داده",
   analysisPeriod: "دوره تحلیل",
@@ -205,7 +205,7 @@ export const t = {
   aiWelcome: "داده‌های خود را با انتخاب معیارها و فیلترها تحلیل کنید. سپس، خلاصه‌ای هوشمند دریافت کرده یا سوالات خود را بپرسید.",
   loadingData: "در حال بارگذاری اطلاعات...",
   syncingData: "در حال همگام‌سازی با فضای ابری...",
-  
+
   // Expense Forecasting
   expenseForecast: "پیش‌بینی هزینه‌ها",
   avgDailyExpense: "میانگین هزینه روزانه",
@@ -233,7 +233,7 @@ export const t = {
   addVendorTitle: "افزودن تامین‌کننده جدید",
   editVendorTitle: "ویرایش اطلاعات تامین‌کننده",
   confirmDeleteVendor: (name: string) => `آیا از حذف تامین‌کننده «${name}» مطمئن هستید؟ خریدهای ثبت شده با این تامین‌کننده حذف نخواهند شد.`,
-  
+
   // Item Management
   itemsDashboardTitle: "مدیریت اقلام",
   noItemsYet: "هنوز هیچ قلم خریدی ثبت نشده است.",
@@ -264,10 +264,6 @@ export const t = {
   noDataForSummary: "داده کافی برای نمایش خلاصه در این دوره وجود ندارد.",
   save: "ذخیره",
 
-  // FIX: Add missing translation strings for settings modal
-  settingsSaved: "تنظیمات با موفقیت ذخیره شد.",
-  settingsTitle: "تنظیمات همگام‌سازی",
-  settingsDescription: "برای همگام‌سازی داده‌ها با فضای ابری، اطلاعات GitHub Gist خود را وارد کنید.",
-  githubToken: "توکن دسترسی شخصی GitHub",
-  gistId: "شناسه Gist",
+  // Settings
+  settingsTitle: "تنظیمات",
 };
